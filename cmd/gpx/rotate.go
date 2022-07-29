@@ -5,6 +5,8 @@ import (
 	"io"
 	"strconv"
 
+	gpxgo "github.com/tkrajina/gpxgo/gpx"
+
 	"github.com/glynternet/gpx/pkg/gpx"
 	gpxio "github.com/glynternet/gpx/pkg/io"
 	"github.com/spf13/cobra"
@@ -32,7 +34,7 @@ func rotateCmd(out io.Writer) *cobra.Command {
 				return err
 			}
 
-			if err := validate(content); err != nil {
+			if err := validateSingleTrack(content); err != nil {
 				return fmt.Errorf("content invalid or not supported: %w", err)
 			}
 
@@ -40,4 +42,16 @@ func rotateCmd(out io.Writer) *cobra.Command {
 			return gpxio.Write(out, *content)
 		},
 	}
+}
+
+func validateSingleTrack(g *gpxgo.GPX) error {
+	if n := len(g.Tracks); n != 1 {
+		return fmt.Errorf("gpx file must contain exactly 1 track but contains %d", n)
+	}
+
+	if n := len(g.Tracks[0].Segments); n != 1 {
+		return fmt.Errorf("track must contain exactly 1 segment but contains %d", n)
+	}
+
+	return nil
 }
