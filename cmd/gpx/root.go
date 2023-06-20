@@ -9,5 +9,6 @@ import (
 
 func buildCmdTree(logger log.Logger, out io.Writer, rootCmd *cobra.Command) {
 	rootCmd.AddCommand(rotateCmd(out))
-	rootCmd.AddCommand(splitCmd(out, logger))
+	rootCmd.AddCommand(splitCmd(logger))
+	rootCmd.AddCommand(trackWaypointsCmd(logger, out))
 }

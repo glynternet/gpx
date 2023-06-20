@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,7 +16,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func splitCmd(out io.Writer, logger log.Logger) *cobra.Command {
+func splitCmd(logger log.Logger) *cobra.Command {
 	return &cobra.Command{
 		Use:   "split <gpx-file>",
 		Short: "Split a GPX into many files containing a single track each.",
