@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const appName = "gpx"
+const appName = "gpxserver"
 
 // to be changed using ldflags with the go build command
 var version = "unknown"

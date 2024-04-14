@@ -3,18 +3,22 @@ package io
 import (
 	"fmt"
 	"github.com/tkrajina/gpxgo/gpx"
-	"io/ioutil"
+	"os"
 )
 
 func ReadFile(path string) (*gpx.GPX, error) {
-	content, err := ioutil.ReadFile(path)
+	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("reading content file:%q: %w", path, err)
 	}
 
-	data, err := gpx.ParseBytes(content)
+	gpxData, err := gpx.Parse(f)
 	if err != nil {
-		return nil, fmt.Errorf("parsing content data: %w", err)
+		_ = f.Close()
+		return nil, err
 	}
-	return data, nil
+	if err := f.Close(); err != nil {
+		return nil, fmt.Errorf("closing file:%q: %w", path, err)
+	}
+	return gpxData, nil
 }
