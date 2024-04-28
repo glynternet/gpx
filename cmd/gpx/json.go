@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/glynternet/pkg/log"
 	"io"
 	"os"
 	"strconv"
 
 	gpxio "github.com/glynternet/gpx/pkg/io"
+	json2 "github.com/glynternet/gpx/pkg/json"
+	"github.com/glynternet/pkg/log"
 	"github.com/spf13/cobra"
 	gpxgo "github.com/tkrajina/gpxgo/gpx"
 )
@@ -26,7 +27,7 @@ func jsonWaypointsCmd(logger log.Logger, out io.Writer) *cobra.Command {
 	return &cobra.Command{
 		Use:   "waypoints <name> <json file>",
 		Short: "Create gpx file from json file containing array of points.",
-		Long:  `Create gpx file from json file containing array of points of name, lat, lon fields.
+		Long: `Create gpx file from json file containing array of points of name, lat, lon fields.
 
 e.g.
 
@@ -57,14 +58,7 @@ $ gpx json <gpx name> points.json
 			decoder := json.NewDecoder(fd)
 			decoder.DisallowUnknownFields()
 
-			type point struct {
-				// field names matched to GPX spec
-				Name        string  `json:"name"`
-				Lat         float64 `json:"lat"`
-				Lon         float64 `json:"lon"`
-				Description string  `json:"desc"`
-			}
-			var ps []point
+			var ps []json2.Point
 			if err := decoder.Decode(&ps); err != nil {
 				return fmt.Errorf("docoding json content: %w", err)
 			}
@@ -106,6 +100,7 @@ $ gpx json <gpx name> points.json
 					Name:        resolvedName,
 					Description: p.Description,
 					Type:        "user",
+					Symbol:      p.Symbol,
 				}
 			}
 
