@@ -139,27 +139,41 @@ func resolveName(tags map[string]interface{}) (string, error) {
 
 func resolveSymbol(tags map[string]interface{}) string {
 	var symbol string
-	for _, tag := range []struct {
-		key, value, symbol string
+	for _, symbolMatchers := range []struct {
+		tags   map[string]string
+		symbol string
 	}{
-		{key: "leisure", value: "park", symbol: "Park"},
-		{key: "amenity", value: "toilets", symbol: "Restroom"},
-		{key: "amenity", value: "drinking_water", symbol: "Drinking Water"},
-		{key: "natural", value: "peak", symbol: "Summit"},
-		{key: "tourism", value: "viewpoint", symbol: "Scenic Area"},
-		{key: "amenity", value: "bicycle_repair_station", symbol: "Mine"},
-		{key: "amenity", value: "fast_food", symbol: "Fast Food"},
-		{key: "amenity", value: "fuel", symbol: "Gas Station"},
+		{tags: map[string]string{"leisure": "park"}, symbol: "Park"},
+		{tags: map[string]string{"amenity": "toilets"}, symbol: "Restroom"},
+		{tags: map[string]string{"amenity": "drinking_water"}, symbol: "Drinking Water"},
+		{tags: map[string]string{"natural": "peak"}, symbol: "Summit"},
+		{tags: map[string]string{"tourism": "viewpoint"}, symbol: "Scenic Area"},
+		{tags: map[string]string{"amenity": "bicycle_repair_station"}, symbol: "Mine"},
+		{tags: map[string]string{"amenity": "fast_food"}, symbol: "Fast Food"},
+		{tags: map[string]string{"amenity": "fuel"}, symbol: "Gas Station"},
+		{tags: map[string]string{"amenity": "pub"}, symbol: "Bar"},
+		{tags: map[string]string{"amenity": "cafe"}, symbol: "Restaurant"},
+		{tags: map[string]string{"tourism": "picnic_site"}, symbol: "Picnic Area"},
+		{tags: map[string]string{"amenity": "restaurant", "cuisine": "pizza"}, symbol: "Pizza"},
+		{tags: map[string]string{"amenity": "restaurant"}, symbol: "Restaurant"},
+		{tags: map[string]string{"amenity": "ice_cream"}, symbol: "Fast Food"},
+		{tags: map[string]string{"tourism": "camp_pitch"}, symbol: "Campground"},
+		{tags: map[string]string{"leisure": "nature_reserve"}, symbol: "Park"},
+		{tags: map[string]string{"amenity": "shelter"}, symbol: "Building"},
+		{tags: map[string]string{"amenity": "place_of_worship"}, symbol: "Church"},
 	} {
-		v, ok := tags[tag.key]
-		if !ok {
-			continue
+		match := true
+		for k, matcherV := range symbolMatchers.tags {
+			v, ok := tags[k]
+			if !ok || v != matcherV {
+				match = false
+				break
+			}
 		}
-		if v != tag.value {
-			continue
+		if match {
+			symbol = symbolMatchers.symbol
+			break
 		}
-		symbol = tag.symbol
-		break
 	}
 	return symbol
 }
