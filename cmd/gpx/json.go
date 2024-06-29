@@ -66,12 +66,20 @@ $ gpx json <gpx name> points.json
 				return errors.New("json file contained no points")
 			}
 
-			gpxPs := make([]gpxgo.GPXPoint, len(ps))
+			// pre-allocating full len(ps) assuming that if there are duplicates, there are only a negligible amount
+			gpxPs := make([]gpxgo.GPXPoint, 0, len(ps))
 			names := make(map[string]struct{})
 			indexExtension := func(i int) string {
 				return " (" + strconv.Itoa(i) + ")"
 			}
-			for i, p := range ps {
+			done := make(map[json2.Point]struct{})
+			for _, p := range ps {
+				if _, ok := done[p]; ok {
+					if err := log.Info(logger, log.Message("Duplicate point encountered, skipping"), log.KV{K: "name", V: p.Name}); err != nil {
+						panic(fmt.Errorf("error logging: %w", err))
+					}
+					continue
+				}
 				if p.Name == "" {
 					return errors.New("point with empty name")
 				}
@@ -92,7 +100,7 @@ $ gpx json <gpx name> points.json
 						panic(fmt.Errorf("error logging: %w", err))
 					}
 				}
-				gpxPs[i] = gpxgo.GPXPoint{
+				gpxPs = append(gpxPs, gpxgo.GPXPoint{
 					Point: gpxgo.Point{
 						Latitude:  p.Lat,
 						Longitude: p.Lon,
@@ -101,7 +109,8 @@ $ gpx json <gpx name> points.json
 					Description: p.Description,
 					Type:        "user",
 					Symbol:      p.Symbol,
-				}
+				})
+				done[p] = struct{}{}
 			}
 
 			return gpxio.Write(out, gpxgo.GPX{
