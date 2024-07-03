@@ -2,12 +2,13 @@ package io
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/tkrajina/gpxgo/gpx"
-	"io/ioutil"
 )
 
 func ReadFile(path string) (*gpx.GPX, error) {
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("reading content file:%q: %w", path, err)
 	}

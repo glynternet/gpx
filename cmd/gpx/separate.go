@@ -16,10 +16,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func splitCmd(logger log.Logger) *cobra.Command {
+func separateCmd(logger log.Logger) *cobra.Command {
 	return &cobra.Command{
-		Use:   "split <gpx-file>",
-		Short: "Split a GPX into many files containing a single track each.",
+		Use:   "separate <gpx-file>",
+		Short: "Separate a GPX into many files containing a single track each.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			content, err := gpxio.ReadFile(args[0])
