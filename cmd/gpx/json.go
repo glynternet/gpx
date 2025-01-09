@@ -15,6 +15,22 @@ import (
 	gpxgo "github.com/tkrajina/gpxgo/gpx"
 )
 
+const exampleJsonPoints = `[
+  {
+    "name": "Foo",
+    "lat": 1,
+    "lon": 2,
+    "desc": "Foo is a fantastic bar",
+    "sym": "shrug"
+  },
+  {
+    "name": "Baz",
+    "lat": -1,
+    "lon": -2
+  }
+]
+`
+
 func jsonCmd(logger log.Logger, out io.Writer) *cobra.Command {
 	jsonCmd := cobra.Command{
 		Use: "json <name> <json file>",
@@ -32,10 +48,7 @@ func jsonWaypointsCmd(logger log.Logger, out io.Writer) *cobra.Command {
 e.g.
 
 # points.json file content
-[
-	{"name":"point a","lat":1.23,"lon":4.56},
-	{"name":"point b","lat":7.89,"lon":0.12}
-]
+` + exampleJsonPoints + `
 
 # usage
 $ gpx json <gpx name> points.json

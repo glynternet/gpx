@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"testing"
 
 	gpxjson "github.com/glynternet/gpx/pkg/json"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -176,4 +178,23 @@ func resolveSymbol(tags map[string]interface{}) string {
 		}
 	}
 	return symbol
+}
+
+func TestExampleJSONPoints(t *testing.T) {
+	var buf bytes.Buffer
+	encoder := json.NewEncoder(&buf)
+	encoder.SetIndent("", "  ")
+	err := encoder.Encode([]gpxjson.Point{{
+		Name:        "Foo",
+		Lat:         1,
+		Lon:         2,
+		Description: "Foo is a fantastic bar",
+		Symbol:      "shrug",
+	}, {
+		Name: "Baz",
+		Lat:  -1,
+		Lon:  -2,
+	}})
+	require.NoError(t, err)
+	assert.Equal(t, exampleJsonPoints, buf.String())
 }
