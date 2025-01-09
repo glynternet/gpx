@@ -7,7 +7,7 @@ func CapLength(max int) func(string) string {
 
 // Removes vowels from name
 // Need to have something that checks for empty names?
-func Devowel() string {
+func Devowel(skip uint) func(string) string {
 	panic("not implemented")
 }
 
