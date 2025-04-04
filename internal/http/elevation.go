@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	ggpx "github.com/glynternet/gpx/pkg/gpx"
+	"github.com/glynternet/gpx/pkg/elevation"
 	"github.com/tkrajina/gpxgo/gpx"
 )
 
@@ -30,7 +30,7 @@ func HandleElevation(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("closing request body: %s", err), http.StatusBadRequest)
 		return
 	}
-	profile, err := ggpx.Profile(*content)
+	profile, err := elevation.CalculateProfiles(content.Tracks, content.Waypoints)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("calculating elevation profile: %s", err), http.StatusInternalServerError)
 		return

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/glynternet/gpx/pkg/gpx"
+	"github.com/glynternet/gpx/pkg/elevation"
 	gpxio "github.com/glynternet/gpx/pkg/io"
 	"github.com/spf13/cobra"
 )
@@ -21,7 +21,7 @@ func elevationCmd(out io.Writer) *cobra.Command {
 				return err
 			}
 
-			profile, err := gpx.Profile(*content)
+			profile, err := elevation.CalculateProfiles(content.Tracks, content.Waypoints)
 			if err != nil {
 				return err
 			}
