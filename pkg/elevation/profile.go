@@ -15,6 +15,8 @@ type Profile struct {
 type TrackPoint struct {
 	Distance  float64 `json:"dist"`
 	Elevation float64 `json:"ele"`
+	Lat       float64 `json:"lat"`
+	Lon       float64 `json:"lon"`
 }
 
 type Waypoint struct {
@@ -64,7 +66,7 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 			return nil, fmt.Errorf("first point elevation is null")
 		}
 		trackPoints := []TrackPoint{
-			{Distance: 0, Elevation: points[0].Elevation.Value()},
+			{Distance: 0, Elevation: points[0].Elevation.Value(), Lat: points[0].Latitude, Lon: points[0].Longitude},
 		}
 
 		var segmentWaypoints []Waypoint
@@ -102,6 +104,8 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 				// TODO(glynternet): maybe distance 2D is actually what we want? How do other tracking applications work?
 				Distance:  dist,
 				Elevation: ele,
+				Lat:       current.Latitude,
+				Lon:       current.Longitude,
 			})
 		}
 		profiles = append(profiles, Profile{
