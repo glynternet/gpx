@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/glynternet/gpx/pkg/gpx/validate"
 	"github.com/glynternet/pkg/log"
 
 	gpxgo "github.com/tkrajina/gpxgo/gpx"
@@ -27,9 +28,8 @@ func separateCmd(logger log.Logger) *cobra.Command {
 				return err
 			}
 
-			if len(content.Tracks) == 0 {
-				_ = log.Info(logger, log.Message("GPX file has no tracks, nothing to do"))
-				return nil
+			if err := validate.GPX(content, validate.PopulatedTracks(validate.SingleSegment())); err != nil {
+				return fmt.Errorf("validating gpx: %w", err)
 			}
 
 			for _, gpx := range gpx.Split(*content) {

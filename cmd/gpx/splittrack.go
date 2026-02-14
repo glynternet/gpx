@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/glynternet/gpx/pkg/gpx/validate"
 	"github.com/glynternet/pkg/log"
 
 	"github.com/glynternet/gpx/pkg/gpx"
@@ -29,15 +30,8 @@ func splitTrackCmd(logger log.Logger) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if len(content.Tracks) == 0 {
-				_ = log.Info(logger, log.Message("GPX file has no tracks, nothing to do"))
-				return nil
-			}
-			if len(content.Tracks) > 1 {
-				return fmt.Errorf("GPX file must contain exactly 1 track but contains %d", len(content.Tracks))
-			}
-			if len(content.Tracks[0].Segments) != 1 {
-				return fmt.Errorf("GPX track must contain exactly 1 segment but contains %d", len(content.Tracks[0].Segments))
+			if err := validate.GPX(content, validate.SingleTrack(validate.SingleSegment())); err != nil {
+				return fmt.Errorf("validating gpx: %w", err)
 			}
 
 			splitSegments, err := gpx.SplitPoints(content.Tracks[0].Segments[0].Points, uint(segments), preOverlap)

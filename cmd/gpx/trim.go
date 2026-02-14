@@ -6,6 +6,7 @@ import (
 	"os"
 	"slices"
 
+	"github.com/glynternet/gpx/pkg/gpx/validate"
 	"github.com/glynternet/pkg/log"
 
 	"github.com/glynternet/gpx/pkg/gpx"
@@ -37,19 +38,8 @@ func trimCmd(logger log.Logger) *cobra.Command {
 				return errors.New("end trim distance cannot be negative")
 			}
 
-			if len(content.Tracks) == 0 {
-				_ = log.Info(logger, log.Message("GPX file has no tracks, nothing to do"))
-				return nil
-			}
-			if len(content.Tracks) > 1 {
-				return errors.New("gpx file has multiple tracks, unsupported")
-			}
-			if len(content.Tracks[0].Segments) == 0 {
-				_ = log.Info(logger, log.Message("GPX file has no segments, nothing to do"))
-				return nil
-			}
-			if len(content.Tracks[0].Segments) > 1 {
-				return errors.New("gpx file has multiple segments, unsupported")
+			if err := validate.GPX(content, validate.SingleTrack(validate.SingleSegment())); err != nil {
+				return fmt.Errorf("validating gpx: %w", err)
 			}
 
 			pts := content.Tracks[0].Segments[0].Points
