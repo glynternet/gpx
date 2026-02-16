@@ -20,8 +20,10 @@ type TrackPoint struct {
 }
 
 type Waypoint struct {
-	Distance float64 `json:"dist"`
 	Name     string  `json:"name"`
+	Distance float64 `json:"dist"`
+	Gain     float64 `json:"gain"`
+	Loss     float64 `json:"loss"`
 }
 
 func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profile, error) {
@@ -71,7 +73,7 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 
 		var segmentWaypoints []Waypoint
 		// checks if a given point at index i has any waypoints
-		checkAndAppendWaypoints := func(i int, distance float64) {
+		checkAndAppendWaypoints := func(i int, distance float64, cumulativeUpDown gpx.UphillDownhill) {
 			trackPointWaypointNames, ok := trackPointWaypoints[points[i].Point]
 			if !ok {
 				return
@@ -80,28 +82,37 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 				segmentWaypoints = append(segmentWaypoints, Waypoint{
 					Name:     waypointName,
 					Distance: distance,
+					Gain:     cumulativeUpDown.Uphill,
+					Loss:     cumulativeUpDown.Downhill,
 				})
 			}
 		}
-		checkAndAppendWaypoints(0, 0)
+		var cumulativeUpDown gpx.UphillDownhill
+		checkAndAppendWaypoints(0, 0, cumulativeUpDown)
 
 		for i := 1; i < numPoints; i++ {
 			prev := points[i-1]
 			current := points[i]
 
+			// previous profile point elevation should always be present
+			// because we check for first element being non-null then extrapolate
+			prevEle := trackPoints[i-1].Elevation
 			var ele float64
 			if current.Elevation.Null() {
-				// previous profile point elevation should always be present
-				// because we check for first element being non-null then extrapolate
-				ele = trackPoints[i-1].Elevation
+				ele = prevEle
 			} else {
 				ele = current.Elevation.Value()
+				if eleDelta := ele - prevEle; eleDelta > 0 {
+					cumulativeUpDown.Uphill += eleDelta
+				} else if eleDelta < 0 {
+					cumulativeUpDown.Downhill -= eleDelta
+				}
 			}
 
+			// TODO(glynternet): maybe distance 2D is actually what we want? How do other tracking applications work?
 			dist := trackPoints[i-1].Distance + prev.Distance3D(&current)
-			checkAndAppendWaypoints(i, dist)
+			checkAndAppendWaypoints(i, dist, cumulativeUpDown)
 			trackPoints = append(trackPoints, TrackPoint{
-				// TODO(glynternet): maybe distance 2D is actually what we want? How do other tracking applications work?
 				Distance:  dist,
 				Elevation: ele,
 				Lat:       current.Latitude,
