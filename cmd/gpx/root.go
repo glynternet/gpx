@@ -13,6 +13,7 @@ func buildCmdTree(logger log.Logger, out io.Writer, rootCmd *cobra.Command) {
 	rootCmd.AddCommand(rotateCmd(out))
 	rootCmd.AddCommand(separateCmd(logger))
 	rootCmd.AddCommand(splitTrackCmd(logger))
+	rootCmd.AddCommand(statCmd())
 	rootCmd.AddCommand(trackWaypointsCmd(logger, out))
 	rootCmd.AddCommand(trimCmd(logger))
 }
