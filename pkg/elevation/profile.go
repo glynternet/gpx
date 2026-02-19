@@ -20,14 +20,15 @@ type TrackPoint struct {
 }
 
 type Waypoint struct {
-	Name     string  `json:"name"`
-	Distance float64 `json:"dist"`
-	Gain     float64 `json:"gain"`
-	Loss     float64 `json:"loss"`
+	Name       string   `json:"name"`
+	Categories []string `json:"categories"`
+	Distance   float64  `json:"dist"`
+	Gain       float64  `json:"gain"`
+	Loss       float64  `json:"loss"`
 }
 
 func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profile, error) {
-	trackPointWaypoints := map[gpx.Point][]string{}
+	trackPointWaypoints := map[gpx.Point][]waypointDetails{}
 	for _, waypoint := range waypoints {
 		minDistTrackIndex := -1
 		var minDistPointIndex int
@@ -49,7 +50,10 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 		}
 		if minDistTrackIndex != -1 {
 			point := tracks[minDistTrackIndex].Segments[0].Points[minDistPointIndex].Point
-			trackPointWaypoints[point] = append(trackPointWaypoints[point], waypoint.Name)
+			trackPointWaypoints[point] = append(trackPointWaypoints[point], waypointDetails{
+				name:     waypoint.Name,
+				category: waypoint.Symbol,
+			})
 		}
 	}
 
@@ -78,12 +82,19 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 			if !ok {
 				return
 			}
-			for _, waypointName := range trackPointWaypointNames {
+			for _, waypoint := range trackPointWaypointNames {
+				var categories []string
+				if waypoint.category != "" {
+					categories = []string{waypoint.category}
+				} else {
+					categories = []string{}
+				}
 				segmentWaypoints = append(segmentWaypoints, Waypoint{
-					Name:     waypointName,
-					Distance: distance,
-					Gain:     cumulativeUpDown.Uphill,
-					Loss:     cumulativeUpDown.Downhill,
+					Name:       waypoint.name,
+					Categories: categories,
+					Distance:   distance,
+					Gain:       cumulativeUpDown.Uphill,
+					Loss:       cumulativeUpDown.Downhill,
 				})
 			}
 		}
@@ -126,4 +137,10 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 	}
 
 	return profiles, nil
+}
+
+type waypointDetails struct {
+	name string
+	// TODO: support multiple categories sourced from route-poi-finder framework
+	category string
 }
