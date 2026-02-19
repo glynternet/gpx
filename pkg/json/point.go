@@ -1,10 +1,14 @@
 package json
 
 type Point struct {
-	// field names matched to GPX spec
+	// field names matched to GPX spec, where possible
 	Name        string  `json:"name"`
 	Lat         float64 `json:"lat"`
 	Lon         float64 `json:"lon"`
 	Description string  `json:"desc,omitempty"`
 	Symbol      string  `json:"sym,omitempty"`
+
+	// non GPX fields
+	// OpenStreetMap ID
+	OSMID int64 `json:"osmid,omitempty"`
 }
