@@ -50,9 +50,13 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 		}
 		if minDistTrackIndex != -1 {
 			point := tracks[minDistTrackIndex].Segments[0].Points[minDistPointIndex].Point
+			categories := categoriesFromPoint(waypoint)
+			if len(categories) == 0 && waypoint.Symbol != "" {
+				categories = []string{waypoint.Symbol}
+			}
 			trackPointWaypoints[point] = append(trackPointWaypoints[point], waypointDetails{
-				name:     waypoint.Name,
-				category: waypoint.Symbol,
+				name:       waypoint.Name,
+				categories: categories,
 			})
 		}
 	}
@@ -83,15 +87,9 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 				return
 			}
 			for _, waypoint := range trackPointWaypointNames {
-				var categories []string
-				if waypoint.category != "" {
-					categories = []string{waypoint.category}
-				} else {
-					categories = []string{}
-				}
 				segmentWaypoints = append(segmentWaypoints, Waypoint{
 					Name:       waypoint.name,
-					Categories: categories,
+					Categories: waypoint.categories,
 					Distance:   distance,
 					Gain:       cumulativeUpDown.Uphill,
 					Loss:       cumulativeUpDown.Downhill,
@@ -140,7 +138,20 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 }
 
 type waypointDetails struct {
-	name string
-	// TODO: support multiple categories sourced from route-poi-finder framework
-	category string
+	name       string
+	categories []string
+}
+
+func categoriesFromPoint(p gpx.GPXPoint) []string {
+	var categories []string
+	for _, node := range p.Extensions.Nodes {
+		if node.XMLName.Local == "Categories" {
+			for _, child := range node.Nodes {
+				if child.XMLName.Local == "Category" {
+					categories = append(categories, child.Data)
+				}
+			}
+		}
+	}
+	return categories
 }
