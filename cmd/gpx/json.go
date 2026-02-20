@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
@@ -85,9 +86,13 @@ $ gpx json <gpx name> points.json
 			indexExtension := func(i int) string {
 				return " (" + strconv.Itoa(i) + ")"
 			}
-			done := make(map[json2.Point]struct{})
+			done := make(map[string]json2.Point)
 			for _, p := range ps {
-				if _, ok := done[p]; ok {
+				hash, err := json.Marshal(p)
+				if err != nil {
+					return fmt.Errorf("marshaling json point for hash: %w", err)
+				}
+				if _, ok := done[string(hash)]; ok {
 					if err := log.Info(logger, log.Message("Duplicate point encountered, skipping"), log.KV{K: "name", V: p.Name}); err != nil {
 						panic(fmt.Errorf("error logging: %w", err))
 					}
@@ -122,8 +127,9 @@ $ gpx json <gpx name> points.json
 					Description: p.Description,
 					Type:        "user",
 					Symbol:      p.Symbol,
+					Extensions: categoriesToExtension(p.Categories),
 				})
-				done[p] = struct{}{}
+				done[string(hash)] = p
 			}
 
 			return gpxio.Write(out, gpxgo.GPX{
@@ -131,5 +137,24 @@ $ gpx json <gpx name> points.json
 				Waypoints: gpxPs,
 			})
 		},
+	}
+}
+
+func categoriesToExtension(categories []string) gpxgo.Extension {
+	if len(categories) == 0 {
+		return gpxgo.Extension{}
+	}
+	categoryNodes := make([]gpxgo.ExtensionNode, len(categories))
+	for i, c := range categories {
+		categoryNodes[i] = gpxgo.ExtensionNode{
+			XMLName: xml.Name{Local: "gpxx:Category"},
+			Data:    c,
+		}
+	}
+	return gpxgo.Extension{
+		Nodes: []gpxgo.ExtensionNode{{
+			XMLName: xml.Name{Local: "gpxx:Categories"},
+			Nodes:   categoryNodes,
+		}},
 	}
 }

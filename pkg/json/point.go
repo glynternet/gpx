@@ -10,5 +10,6 @@ type Point struct {
 
 	// non GPX fields
 	// OpenStreetMap ID
-	OSMID int64 `json:"osmid,omitempty"`
+	OSMID      int64    `json:"osmid,omitempty"`
+	Categories []string `json:"categories,omitempty"`
 }
