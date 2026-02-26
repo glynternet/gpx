@@ -1,7 +1,9 @@
 package elevation
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 
 	"github.com/tkrajina/gpxgo/gpx"
@@ -79,7 +81,12 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 			{Distance: 0, Elevation: points[0].Elevation.Value(), Lat: points[0].Latitude, Lon: points[0].Longitude},
 		}
 
+		// it's possible for there to be multiple sequential points, all with the same lat/lon, which would produce duplicate
+		// Waypoint values. So we need to deduplicate by hashing.
+		// TODO: improve hashing function from json, which doesn't have ordered fields in the spec and so could, technically,
+		//   produce inconsistent hashes
 		var segmentWaypoints []Waypoint
+		segmentWaypointsSeen := make(map[string]struct{})
 		// checks if a given point at index i has any waypoints
 		checkAndAppendWaypoints := func(i int, distance float64, cumulativeUpDown gpx.UphillDownhill) {
 			trackPointWaypointNames, ok := trackPointWaypoints[points[i].Point]
@@ -87,13 +94,24 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 				return
 			}
 			for _, waypoint := range trackPointWaypointNames {
-				segmentWaypoints = append(segmentWaypoints, Waypoint{
+				wp := Waypoint{
 					Name:       waypoint.name,
 					Categories: waypoint.categories,
 					Distance:   distance,
 					Gain:       cumulativeUpDown.Uphill,
 					Loss:       cumulativeUpDown.Downhill,
-				})
+				}
+				hash, err := json.Marshal(wp)
+				if err != nil {
+					log.Println("Could not marshal waypoint for hashing", err)
+					return
+				}
+				hashStr := string(hash)
+				if _, seen := segmentWaypointsSeen[hashStr]; seen {
+					return
+				}
+				segmentWaypointsSeen[hashStr] = struct{}{}
+				segmentWaypoints = append(segmentWaypoints, wp)
 			}
 		}
 		var cumulativeUpDown gpx.UphillDownhill
