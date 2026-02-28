@@ -12,6 +12,8 @@ import (
 type Profile struct {
 	Track     []TrackPoint `json:"track"`
 	Waypoints []Waypoint   `json:"waypoints"`
+	Gain      float64      `json:"gain"`
+	Loss      float64      `json:"loss"`
 }
 
 type TrackPoint struct {
@@ -149,6 +151,8 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 		profiles = append(profiles, Profile{
 			Track:     trackPoints,
 			Waypoints: segmentWaypoints,
+			Gain:      cumulativeUpDown.Uphill,
+			Loss:      cumulativeUpDown.Downhill,
 		})
 	}
 
