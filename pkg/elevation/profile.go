@@ -21,6 +21,8 @@ type TrackPoint struct {
 	Elevation float64 `json:"ele"`
 	Lat       float64 `json:"lat"`
 	Lon       float64 `json:"lon"`
+	Gain      float64 `json:"gain"`
+	Loss      float64 `json:"loss"`
 }
 
 type Waypoint struct {
@@ -146,6 +148,8 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 				Elevation: ele,
 				Lat:       current.Latitude,
 				Lon:       current.Longitude,
+				Gain:      cumulativeUpDown.Uphill,
+				Loss:      cumulativeUpDown.Downhill,
 			})
 		}
 		profiles = append(profiles, Profile{
