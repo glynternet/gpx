@@ -31,6 +31,7 @@ type Waypoint struct {
 	Distance   float64  `json:"dist"`
 	Gain       float64  `json:"gain"`
 	Loss       float64  `json:"loss"`
+	OffRoute   float64  `json:"offRoute"`
 }
 
 func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profile, error) {
@@ -63,6 +64,7 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 			trackPointWaypoints[point] = append(trackPointWaypoints[point], waypointDetails{
 				name:       waypoint.Name,
 				categories: categories,
+				offRoute:   minDist,
 			})
 		}
 	}
@@ -104,6 +106,7 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 					Distance:   distance,
 					Gain:       cumulativeUpDown.Uphill,
 					Loss:       cumulativeUpDown.Downhill,
+					OffRoute:   waypoint.offRoute,
 				}
 				hash, err := json.Marshal(wp)
 				if err != nil {
@@ -166,6 +169,7 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 type waypointDetails struct {
 	name       string
 	categories []string
+	offRoute   float64
 }
 
 func categoriesFromPoint(p gpx.GPXPoint) []string {
