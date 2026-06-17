@@ -56,13 +56,9 @@ $ gpx json <gpx name> points.json
 `,
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			name := args[0]
-			if name == "" {
-				return errors.New("name must not be empty")
-			}
-			file := args[1]
-			if file == "" {
-				return errors.New("file must not be empty")
+			name, file, err := waypointsArgs(args)
+			if err != nil {
+				return err
 			}
 
 			fd, err := os.Open(file)
@@ -76,68 +72,88 @@ $ gpx json <gpx name> points.json
 			if err := decoder.Decode(&ps); err != nil {
 				return fmt.Errorf("docoding json content: %w", err)
 			}
-			if len(ps) == 0 {
-				return errors.New("json file contained no points")
-			}
 
-			// pre-allocating full len(ps) assuming that if there are duplicates, there are only a negligible amount
-			gpxPs := make([]gpxgo.GPXPoint, 0, len(ps))
-			names := make(map[string]struct{})
-			indexExtension := func(i int) string {
-				return " (" + strconv.Itoa(i) + ")"
-			}
-			done := make(map[string]json2.Point)
-			for _, p := range ps {
-				hash, err := json.Marshal(p)
-				if err != nil {
-					return fmt.Errorf("marshaling json point for hash: %w", err)
-				}
-				if _, ok := done[string(hash)]; ok {
-					if err := log.Info(logger, log.Message("Duplicate point encountered, skipping"), log.KV{K: "name", V: p.Name}); err != nil {
-						panic(fmt.Errorf("error logging: %w", err))
-					}
-					continue
-				}
-				if p.Name == "" {
-					return errors.New("point with empty name")
-				}
-				resolvedName := p.Name
-				for index := 1; ; index++ {
-					checkName := p.Name
-					if index > 1 {
-						checkName += indexExtension(index)
-					}
-					if _, ok := names[checkName]; !ok {
-						resolvedName = checkName
-						names[checkName] = struct{}{}
-						break
-					}
-				}
-				if resolvedName != p.Name {
-					if err := log.Warn(logger, log.Message("Duplicate name encountered, appending index"), log.KV{K: "name", V: p.Name}, log.KV{K: "renamed", V: resolvedName}); err != nil {
-						panic(fmt.Errorf("error logging: %w", err))
-					}
-				}
-				gpxPs = append(gpxPs, gpxgo.GPXPoint{
-					Point: gpxgo.Point{
-						Latitude:  p.Lat,
-						Longitude: p.Lon,
-					},
-					Name:        resolvedName,
-					Description: p.Description,
-					Type:        "user",
-					Symbol:      p.Symbol,
-					Extensions: categoriesToExtension(p.Categories),
-				})
-				done[string(hash)] = p
-			}
-
-			return gpxio.Write(out, gpxgo.GPX{
-				Name:      name,
-				Waypoints: gpxPs,
-			})
+			return writeWaypoints(logger, out, name, ps)
 		},
 	}
+}
+
+func waypointsArgs(args []string) (name, file string, err error) {
+	name = args[0]
+	if name == "" {
+		return "", "", errors.New("name must not be empty")
+	}
+	file = args[1]
+	if file == "" {
+		return "", "", errors.New("file must not be empty")
+	}
+	return name, file, nil
+}
+
+// writeWaypoints deduplicates the points, resolves any duplicate names by
+// appending an index, converts them to GPX waypoints and writes the resulting
+// GPX document to out.
+func writeWaypoints(logger log.Logger, out io.Writer, name string, ps []json2.Point) error {
+	if len(ps) == 0 {
+		return errors.New("file contained no points")
+	}
+
+	// pre-allocating full len(ps) assuming that if there are duplicates, there are only a negligible amount
+	gpxPs := make([]gpxgo.GPXPoint, 0, len(ps))
+	names := make(map[string]struct{})
+	indexExtension := func(i int) string {
+		return " (" + strconv.Itoa(i) + ")"
+	}
+	done := make(map[string]json2.Point)
+	for _, p := range ps {
+		hash, err := json.Marshal(p)
+		if err != nil {
+			return fmt.Errorf("marshaling json point for hash: %w", err)
+		}
+		if _, ok := done[string(hash)]; ok {
+			if err := log.Info(logger, log.Message("Duplicate point encountered, skipping"), log.KV{K: "name", V: p.Name}); err != nil {
+				panic(fmt.Errorf("error logging: %w", err))
+			}
+			continue
+		}
+		if p.Name == "" {
+			return errors.New("point with empty name")
+		}
+		resolvedName := p.Name
+		for index := 1; ; index++ {
+			checkName := p.Name
+			if index > 1 {
+				checkName += indexExtension(index)
+			}
+			if _, ok := names[checkName]; !ok {
+				resolvedName = checkName
+				names[checkName] = struct{}{}
+				break
+			}
+		}
+		if resolvedName != p.Name {
+			if err := log.Warn(logger, log.Message("Duplicate name encountered, appending index"), log.KV{K: "name", V: p.Name}, log.KV{K: "renamed", V: resolvedName}); err != nil {
+				panic(fmt.Errorf("error logging: %w", err))
+			}
+		}
+		gpxPs = append(gpxPs, gpxgo.GPXPoint{
+			Point: gpxgo.Point{
+				Latitude:  p.Lat,
+				Longitude: p.Lon,
+			},
+			Name:        resolvedName,
+			Description: p.Description,
+			Type:        "user",
+			Symbol:      p.Symbol,
+			Extensions:  categoriesToExtension(p.Categories),
+		})
+		done[string(hash)] = p
+	}
+
+	return gpxio.Write(out, gpxgo.GPX{
+		Name:      name,
+		Waypoints: gpxPs,
+	})
 }
 
 func categoriesToExtension(categories []string) gpxgo.Extension {
