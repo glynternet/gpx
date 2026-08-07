@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"strings"
 
 	"github.com/tkrajina/gpxgo/gpx"
 )
@@ -58,8 +59,8 @@ func CalculateProfiles(tracks []gpx.GPXTrack, waypoints []gpx.GPXPoint) ([]Profi
 		if minDistTrackIndex != -1 {
 			point := tracks[minDistTrackIndex].Segments[0].Points[minDistPointIndex].Point
 			categories := categoriesFromPoint(waypoint)
-			if len(categories) == 0 && waypoint.Symbol != "" {
-				categories = []string{waypoint.Symbol}
+			if len(categories) == 0 {
+				categories = categoriesFromSymbol(waypoint.Symbol)
 			}
 			trackPointWaypoints[point] = append(trackPointWaypoints[point], waypointDetails{
 				name:       waypoint.Name,
@@ -170,6 +171,26 @@ type waypointDetails struct {
 	name       string
 	categories []string
 	offRoute   float64
+}
+
+// uninformativeSymbols are the symbols that tools write for a plain, unstyled
+// waypoint. They describe nothing about the waypoint, so using one as a
+// category would bury every genuinely categorised waypoint under a filter entry
+// that means "no category". Keys are lowercased.
+var uninformativeSymbols = map[string]bool{
+	"":           true, // no symbol at all
+	"dot":        true, // the default in most route planners
+	"flag, blue": true, // the Garmin/BaseCamp default
+}
+
+// categoriesFromSymbol falls back to a waypoint's symbol as its sole category,
+// which is how most GPX files carry a waypoint's type. Symbols that only say
+// "this is a waypoint" leave it uncategorised.
+func categoriesFromSymbol(symbol string) []string {
+	if uninformativeSymbols[strings.ToLower(strings.TrimSpace(symbol))] {
+		return nil
+	}
+	return []string{symbol}
 }
 
 func categoriesFromPoint(p gpx.GPXPoint) []string {
