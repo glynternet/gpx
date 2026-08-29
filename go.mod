@@ -1,6 +1,6 @@
 module github.com/glynternet/gpx
 
-go 1.21
+go 1.22
 
 require (
 	github.com/glynternet/pkg v0.0.2
