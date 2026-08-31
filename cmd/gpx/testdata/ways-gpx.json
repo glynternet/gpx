@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Riverside Park",
+    "lat": 51.25,
+    "lon": -1.25,
+    "desc": "{\"leisure\":\"park\",\"name\":\"Riverside Park\"}",
+    "sym": "Park"
+  },
+  {
+    "name": "nature_reserve",
+    "lat": 52.25,
+    "lon": 2.25,
+    "desc": "{\"leisure\":\"nature_reserve\"}",
+    "sym": "Park"
+  },
+  {
+    "name": "Luigi's",
+    "lat": 53.25,
+    "lon": 3.25,
+    "desc": "{\"amenity\":\"restaurant\",\"cuisine\":\"pizza\",\"name\":\"Luigi's\"}",
+    "sym": "Pizza"
+  }
+]

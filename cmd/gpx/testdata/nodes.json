@@ -1,0 +1,55 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API",
+  "elements": [
+    {
+      "type": "node",
+      "id": 1,
+      "lat": 51.5,
+      "lon": -0.25,
+      "tags": { "amenity": "drinking_water" }
+    },
+    {
+      "type": "node",
+      "id": 2,
+      "lat": 54.5,
+      "lon": -3.25,
+      "tags": { "natural": "peak", "name": "Scafell Pike", "ele": "978" }
+    },
+    {
+      "type": "node",
+      "id": 3,
+      "lat": 54.25,
+      "lon": -3.0,
+      "tags": { "tourism": "viewpoint" }
+    },
+    {
+      "type": "node",
+      "id": 4,
+      "lat": 53.5,
+      "lon": -2.25,
+      "tags": { "amenity": "restaurant", "cuisine": "pizza", "name": "Luigi's" }
+    },
+    {
+      "type": "node",
+      "id": 5,
+      "lat": 53.25,
+      "lon": -2.5,
+      "tags": { "amenity": "restaurant", "name": "The Greasy Spoon" }
+    },
+    {
+      "type": "node",
+      "id": 6,
+      "lat": 52.0,
+      "lon": -1.5,
+      "tags": { "amenity": "bicycle_repair_station" }
+    },
+    {
+      "type": "node",
+      "id": 7,
+      "lat": 51.75,
+      "lon": -1.25,
+      "tags": { "amenity": "bench", "name": "Memorial Bench" }
+    }
+  ]
+}

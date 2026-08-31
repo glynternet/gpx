@@ -1,0 +1,50 @@
+[
+  {
+    "name": "drinking_water",
+    "lat": 51.5,
+    "lon": -0.25,
+    "desc": "{\"amenity\":\"drinking_water\"}",
+    "sym": "Drinking Water"
+  },
+  {
+    "name": "Scafell Pike",
+    "lat": 54.5,
+    "lon": -3.25,
+    "desc": "{\"ele\":\"978\",\"name\":\"Scafell Pike\",\"natural\":\"peak\"}",
+    "sym": "Summit"
+  },
+  {
+    "name": "viewpoint",
+    "lat": 54.25,
+    "lon": -3,
+    "desc": "{\"tourism\":\"viewpoint\"}",
+    "sym": "Scenic Area"
+  },
+  {
+    "name": "Luigi's",
+    "lat": 53.5,
+    "lon": -2.25,
+    "desc": "{\"amenity\":\"restaurant\",\"cuisine\":\"pizza\",\"name\":\"Luigi's\"}",
+    "sym": "Pizza"
+  },
+  {
+    "name": "The Greasy Spoon",
+    "lat": 53.25,
+    "lon": -2.5,
+    "desc": "{\"amenity\":\"restaurant\",\"name\":\"The Greasy Spoon\"}",
+    "sym": "Restaurant"
+  },
+  {
+    "name": "bicycle_repair_station",
+    "lat": 52,
+    "lon": -1.5,
+    "desc": "{\"amenity\":\"bicycle_repair_station\"}",
+    "sym": "Mine"
+  },
+  {
+    "name": "Memorial Bench",
+    "lat": 51.75,
+    "lon": -1.25,
+    "desc": "{\"amenity\":\"bench\",\"name\":\"Memorial Bench\"}"
+  }
+]
