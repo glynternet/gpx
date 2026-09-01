@@ -7,7 +7,7 @@ require (
 	github.com/serjvanilla/go-overpass v0.0.0-20220918094045-58606372f808
 	github.com/spf13/cobra v1.2.1
 	github.com/stretchr/testify v1.7.0
-	github.com/tkrajina/gpxgo v1.3.0
+	github.com/tkrajina/gpxgo v1.5.0
 )
 
 require (

@@ -236,6 +236,8 @@ github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/tkrajina/gpxgo v1.3.0 h1:rXqIey0Mc6wOvEoKHEnhZG6Kgxq/vQsOUs7/AME128Q=
 github.com/tkrajina/gpxgo v1.3.0/go.mod h1:795sjVRFo5wWyN6oOZp0RYienGGBJjpAlgOz2nCngA0=
+github.com/tkrajina/gpxgo v1.5.0 h1:K09oDB9CWghNgI3UUg9aUQvMQmh21Qh6ZNNhEL5nK/U=
+github.com/tkrajina/gpxgo v1.5.0/go.mod h1:BXSMfUAvKiEhMEXAFM2NvNsbjsSvp394mOvdcNjettg=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
